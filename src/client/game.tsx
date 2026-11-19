@@ -1,6 +1,11 @@
 import './index.css';
 import './afterlight.css';
-import { calculateScore, getDailyPattern, TARGET_COUNT, TOTAL_CELLS } from '../shared/game-logic';
+import {
+  calculateScore,
+  getDailyPattern,
+  TARGET_COUNT,
+  TOTAL_CELLS,
+} from '../shared/game-logic';
 
 import { StrictMode, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -13,16 +18,12 @@ import type {
 type Phase = 'ready' | 'memorize' | 'recall' | 'result';
 type GameMode = 'daily' | 'practice';
 
-
 function getDateKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
 function getRandomPattern() {
-  const values = Array.from(
-    { length: TOTAL_CELLS },
-    (_, index) => index
-  );
+  const values = Array.from({ length: TOTAL_CELLS }, (_, index) => index);
 
   for (let i = values.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -83,7 +84,9 @@ export function App() {
       } catch (error) {
         console.error('AFTERLIGHT initialization:', error);
         if (active) {
-          setSaveError('Could not connect to the daily challenge. Please refresh.');
+          setSaveError(
+            'Could not connect to the daily challenge. Please refresh.'
+          );
           setPattern(getDailyPattern(getDateKey()));
         }
       } finally {
@@ -102,7 +105,7 @@ export function App() {
     if (phase !== 'memorize' && phase !== 'recall') return;
 
     const timer = window.setInterval(() => {
-      setSeconds(current => Math.max(0, current - 1));
+      setSeconds((current) => Math.max(0, current - 1));
     }, 1000);
 
     return () => window.clearInterval(timer);
@@ -132,9 +135,7 @@ export function App() {
     finishing.current = false;
     setSaveError('');
     setGameMode(mode);
-    setPattern(
-      mode === 'daily' ? getDailyPattern(date) : getRandomPattern()
-    );
+    setPattern(mode === 'daily' ? getDailyPattern(date) : getRandomPattern());
     setSelected([]);
     setScore(0);
     setMistakes(0);
@@ -148,9 +149,9 @@ export function App() {
   function toggleCell(index: number) {
     if (phase !== 'recall') return;
 
-    setSelected(current => {
+    setSelected((current) => {
       if (current.includes(index)) {
-        return current.filter(cell => cell !== index);
+        return current.filter((cell) => cell !== index);
       }
 
       if (current.length >= TARGET_COUNT) return current;
@@ -163,8 +164,12 @@ export function App() {
     if (finishing.current) return;
     finishing.current = true;
 
-    const { score: finalScore, correct, wrong, missed } =
-      calculateScore(selected, pattern);
+    const {
+      score: finalScore,
+      correct,
+      wrong,
+      missed,
+    } = calculateScore(selected, pattern);
 
     setScore(finalScore);
     setMistakes(wrong + missed);
@@ -258,7 +263,7 @@ export function App() {
       `My score: ${score}%`,
       `Correct: ${correctCount}/6`,
       `Total errors: ${mistakes}`,
-      `Current streak: ${dailyStreak} days`,
+      `Current streak: ${dailyStreak} ${dailyStreak === 1 ? 'day' : 'days'}`,
       '',
       'Memory fades. Patterns remain.',
       'Can you beat my score?',
@@ -303,10 +308,12 @@ export function App() {
 
       <section className="hero">
         <p className="eyebrow">{dateLabel.toUpperCase()}</p>
-        <h1>Memory fades.<br /><span>Patterns remain.</span></h1>
-        <p className="intro">
-          Remember what you see. Rebuild what disappears.
-        </p>
+        <h1>
+          Memory fades.
+          <br />
+          <span>Patterns remain.</span>
+        </h1>
+        <p className="intro">Remember what you see. Rebuild what disappears.</p>
       </section>
 
       <section className="game-panel">
@@ -346,9 +353,15 @@ export function App() {
                   phase === 'memorize' && illuminated ? 'glowing' : '',
                   phase === 'recall' && active ? 'selected' : '',
                   phase === 'result' && illuminated ? 'revealed' : '',
-                  phase === 'result' && illuminated && active ? 'result-correct' : '',
-                  phase === 'result' && !illuminated && active ? 'result-incorrect' : '',
-                  phase === 'result' && illuminated && !active ? 'result-missed' : '',
+                  phase === 'result' && illuminated && active
+                    ? 'result-correct'
+                    : '',
+                  phase === 'result' && !illuminated && active
+                    ? 'result-incorrect'
+                    : '',
+                  phase === 'result' && illuminated && !active
+                    ? 'result-missed'
+                    : '',
                 ].join(' ')}
                 onClick={() => toggleCell(index)}
                 disabled={phase !== 'recall'}
@@ -386,30 +399,43 @@ export function App() {
 
           {phase === 'result' && (
             <div className="result-summary">
-              <div className="score-number">{score}<small>%</small></div>
+              <div className="score-number">
+                {score}
+                <small>%</small>
+              </div>
               <p>Pattern accuracy</p>
 
               <div className="performance-rating">
-                {score >= 90 ? 'EXCEPTIONAL' :
-                 score >= 70 ? 'SHARP' :
-                 score >= 50 ? 'GETTING WARMER' :
-                 'KEEP PRACTISING'}
+                {score >= 90
+                  ? 'EXCEPTIONAL'
+                  : score >= 70
+                    ? 'SHARP'
+                    : score >= 50
+                      ? 'GETTING WARMER'
+                      : 'KEEP PRACTISING'}
               </div>
 
               <p className="mistake-count">{mistakes} total errors</p>
 
               <div className="result-breakdown">
-                <div><strong>{correctCount}</strong><span>Correct</span></div>
-                <div><strong>{wrongCount}</strong><span>Incorrect</span></div>
-                <div><strong>{missedCount}</strong><span>Missed</span></div>
+                <div>
+                  <strong>{correctCount}</strong>
+                  <span>Correct</span>
+                </div>
+                <div>
+                  <strong>{wrongCount}</strong>
+                  <span>Incorrect</span>
+                </div>
+                <div>
+                  <strong>{missedCount}</strong>
+                  <span>Missed</span>
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        {saveError && (
-          <p className="daily-complete-note">{saveError}</p>
-        )}
+        {saveError && <p className="daily-complete-note">{saveError}</p>}
 
         {phase === 'ready' && (
           <div className="mode-buttons">
@@ -430,7 +456,8 @@ export function App() {
 
             {completedToday && (
               <p className="daily-complete-note">
-                You've completed today's pattern. Come back tomorrow for a new challenge.
+                You've completed today's pattern. Come back tomorrow for a new
+                challenge.
               </p>
             )}
 
@@ -470,14 +497,17 @@ export function App() {
 
             {saving && <p>Saving your daily result...</p>}
 
-            {gameMode === 'daily' && saveError && !completedToday && !saving && (
-              <button
-                className="secondary-button"
-                onClick={() => void finishAnswer()}
-              >
-                Retry saving
-              </button>
-            )}
+            {gameMode === 'daily' &&
+              saveError &&
+              !completedToday &&
+              !saving && (
+                <button
+                  className="secondary-button"
+                  onClick={() => void finishAnswer()}
+                >
+                  Retry saving
+                </button>
+              )}
 
             <button className="primary-button" onClick={shareResult}>
               Share result <span>↗</span>
@@ -500,15 +530,26 @@ export function App() {
       <section className="streak-panel">
         <div className="streak-icon">✦</div>
         <div>
-          <strong>{dailyStreak} {dailyStreak === 1 ? 'DAY' : 'DAYS'}</strong>
+          <strong>
+            {dailyStreak} {dailyStreak === 1 ? 'DAY' : 'DAYS'}
+          </strong>
           <span>CURRENT STREAK</span>
         </div>
       </section>
 
       <section className="stats">
-        <div><strong>06</strong><span>LIGHTS</span></div>
-        <div><strong>05s</strong><span>MEMORIZE</span></div>
-        <div><strong>20s</strong><span>RECALL</span></div>
+        <div>
+          <strong>06</strong>
+          <span>LIGHTS</span>
+        </div>
+        <div>
+          <strong>05s</strong>
+          <span>MEMORIZE</span>
+        </div>
+        <div>
+          <strong>20s</strong>
+          <span>RECALL</span>
+        </div>
       </section>
 
       <footer>
