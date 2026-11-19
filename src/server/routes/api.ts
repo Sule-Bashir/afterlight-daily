@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { context, redis, reddit } from '@devvit/web/server';
+import { calculateScore, getDailyPattern, TARGET_COUNT, TOTAL_CELLS } from '../../shared/game-logic';
 import type {
   InitResponse,
   SubmitRequest,
@@ -9,8 +10,6 @@ import type {
 
 export const api = new Hono();
 
-const TOTAL_CELLS = 16;
-const TARGET_COUNT = 6;
 const START_DATE = '2026-11-18';
 
 function getDateKey() {
@@ -25,27 +24,6 @@ function getDailyNumber(date: string) {
   );
 
   return Math.max(1, days + 1).toString().padStart(3, '0');
-}
-
-function getDailyPattern(date: string) {
-  let seed = 0;
-
-  for (const char of date) {
-    seed = (seed * 31 + char.charCodeAt(0)) >>> 0;
-  }
-
-  const values = Array.from(
-    { length: TOTAL_CELLS },
-    (_, index) => index
-  );
-
-  for (let i = values.length - 1; i > 0; i--) {
-    seed = (seed * 1664525 + 1013904223) >>> 0;
-    const j = seed % (i + 1);
-    const temp = values[i]!; values[i] = values[j]!; values[j] = temp;
-  }
-
-  return values.slice(0, TARGET_COUNT);
 }
 
 function getDailyStreak(
@@ -159,15 +137,8 @@ api.post('/submit', async (c) => {
     const date = getDateKey();
     const pattern = getDailyPattern(date);
 
-    const correct = selected.filter(
-      (cell) => pattern.includes(cell)
-    ).length;
-
-    const wrong = selected.length - correct;
-    const missed = TARGET_COUNT - correct;
-    const score = Math.round(
-      (correct / TARGET_COUNT) * 100
-    );
+    const { score, correct, wrong, missed } =
+      calculateScore(selected, pattern);
 
     const key = getHistoryKey(userId);
 
