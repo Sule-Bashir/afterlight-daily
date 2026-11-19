@@ -1,6 +1,6 @@
 import './index.css';
 import './afterlight.css';
-import { getDailyPattern, TARGET_COUNT, TOTAL_CELLS } from '../shared/game-logic';
+import { calculateScore, getDailyPattern, TARGET_COUNT, TOTAL_CELLS } from '../shared/game-logic';
 
 import { StrictMode, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -163,10 +163,8 @@ export function App() {
     if (finishing.current) return;
     finishing.current = true;
 
-    const correct = selected.filter(cell => pattern.includes(cell)).length;
-    const wrong = selected.length - correct;
-    const missed = TARGET_COUNT - correct;
-    const finalScore = Math.round((correct / TARGET_COUNT) * 100);
+    const { score: finalScore, correct, wrong, missed } =
+      calculateScore(selected, pattern);
 
     setScore(finalScore);
     setMistakes(wrong + missed);
