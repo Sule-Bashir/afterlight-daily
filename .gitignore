@@ -1,0 +1,12 @@
+node_modules
+.DS_Store
+dist
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Local backups
+*.before-*
+*.disabled
