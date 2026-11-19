@@ -210,6 +210,7 @@ export function App() {
         setSaveError('Your daily challenge was already recorded.');
       }
     } catch (error) {
+      finishing.current = false;
       console.error('AFTERLIGHT submission:', error);
       setSaveError(
         error instanceof Error
@@ -468,6 +469,15 @@ export function App() {
             </p>
 
             {saving && <p>Saving your daily result...</p>}
+
+            {gameMode === 'daily' && saveError && !completedToday && !saving && (
+              <button
+                className="secondary-button"
+                onClick={() => void finishAnswer()}
+              >
+                Retry saving
+              </button>
+            )}
 
             <button className="primary-button" onClick={shareResult}>
               Share result <span>↗</span>
