@@ -1,6 +1,11 @@
 import { Hono } from 'hono';
 import { context, redis, reddit } from '@devvit/web/server';
-import { calculateScore, getDailyPattern, TARGET_COUNT, TOTAL_CELLS } from '../../shared/game-logic';
+import {
+  calculateScore,
+  getDailyPattern,
+  TARGET_COUNT,
+  TOTAL_CELLS,
+} from '../../shared/game-logic';
 import type {
   InitResponse,
   SubmitRequest,
@@ -19,17 +24,14 @@ function getDateKey() {
 function getDailyNumber(date: string) {
   const start = new Date(`${START_DATE}T00:00:00Z`);
   const current = new Date(`${date}T00:00:00Z`);
-  const days = Math.floor(
-    (current.getTime() - start.getTime()) / 86400000
-  );
+  const days = Math.floor((current.getTime() - start.getTime()) / 86400000);
 
-  return Math.max(1, days + 1).toString().padStart(3, '0');
+  return Math.max(1, days + 1)
+    .toString()
+    .padStart(3, '0');
 }
 
-function getDailyStreak(
-  history: Record<string, string>,
-  today: string
-) {
+function getDailyStreak(history: Record<string, string>, today: string) {
   const dates = new Set(Object.keys(history));
   const current = new Date(`${today}T00:00:00Z`);
 
@@ -55,10 +57,13 @@ api.get('/init', async (c) => {
   const { postId, userId } = context;
 
   if (!postId) {
-    return c.json<ErrorResponse>({
-      status: 'error',
-      message: 'Post context is unavailable.',
-    }, 400);
+    return c.json<ErrorResponse>(
+      {
+        status: 'error',
+        message: 'Post context is unavailable.',
+      },
+      400
+    );
   }
 
   try {
@@ -69,8 +74,7 @@ api.get('/init', async (c) => {
     let dailyStreak = 0;
 
     if (userId) {
-      const history =
-        (await redis.hGetAll(getHistoryKey(userId))) ?? {};
+      const history = (await redis.hGetAll(getHistoryKey(userId))) ?? {};
 
       completedToday = Boolean(history[date]);
       dailyStreak = getDailyStreak(history, date);
@@ -89,10 +93,13 @@ api.get('/init', async (c) => {
   } catch (error) {
     console.error('AFTERLIGHT init error:', error);
 
-    return c.json<ErrorResponse>({
-      status: 'error',
-      message: 'Could not load your daily challenge.',
-    }, 500);
+    return c.json<ErrorResponse>(
+      {
+        status: 'error',
+        message: 'Could not load your daily challenge.',
+      },
+      500
+    );
   }
 });
 
@@ -100,17 +107,23 @@ api.post('/submit', async (c) => {
   const { postId, userId } = context;
 
   if (!postId) {
-    return c.json<ErrorResponse>({
-      status: 'error',
-      message: 'Post context is unavailable.',
-    }, 400);
+    return c.json<ErrorResponse>(
+      {
+        status: 'error',
+        message: 'Post context is unavailable.',
+      },
+      400
+    );
   }
 
   if (!userId) {
-    return c.json<ErrorResponse>({
-      status: 'error',
-      message: 'Sign in to save your daily result.',
-    }, 401);
+    return c.json<ErrorResponse>(
+      {
+        status: 'error',
+        message: 'Sign in to save your daily result.',
+      },
+      401
+    );
   }
 
   try {
@@ -119,26 +132,26 @@ api.post('/submit', async (c) => {
 
     if (
       !Array.isArray(selected) ||
+      selected.length !== TARGET_COUNT ||
       selected.length > TARGET_COUNT ||
       selected.some(
-        (cell) =>
-          !Number.isInteger(cell) ||
-          cell < 0 ||
-          cell >= TOTAL_CELLS
+        (cell) => !Number.isInteger(cell) || cell < 0 || cell >= TOTAL_CELLS
       ) ||
       new Set(selected).size !== selected.length
     ) {
-      return c.json<ErrorResponse>({
-        status: 'error',
-        message: 'Invalid answer.',
-      }, 400);
+      return c.json<ErrorResponse>(
+        {
+          status: 'error',
+          message: 'Invalid answer.',
+        },
+        400
+      );
     }
 
     const date = getDateKey();
     const pattern = getDailyPattern(date);
 
-    const { score, correct, wrong, missed } =
-      calculateScore(selected, pattern);
+    const { score, correct, wrong, missed } = calculateScore(selected, pattern);
 
     const key = getHistoryKey(userId);
 
@@ -186,9 +199,12 @@ api.post('/submit', async (c) => {
   } catch (error) {
     console.error('AFTERLIGHT submit error:', error);
 
-    return c.json<ErrorResponse>({
-      status: 'error',
-      message: 'Could not save your daily result.',
-    }, 500);
+    return c.json<ErrorResponse>(
+      {
+        status: 'error',
+        message: 'Could not save your daily result.',
+      },
+      500
+    );
   }
 });
