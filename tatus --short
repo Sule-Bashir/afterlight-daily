@@ -1,0 +1,51 @@
+[1mdiff --git a/devvit.json b/devvit.json[m
+[1mindex b049167..64864c4 100644[m
+[1m--- a/devvit.json[m
+[1m+++ b/devvit.json[m
+[36m@@ -25,19 +25,9 @@[m
+         "location": "subreddit",[m
+         "forUserType": "moderator",[m
+         "endpoint": "/internal/menu/post-create"[m
+[31m-      },[m
+[31m-      {[m
+[31m-        "label": "Example form",[m
+[31m-        "description": "Show a simple form",[m
+[31m-        "location": "subreddit",[m
+[31m-        "forUserType": "moderator",[m
+[31m-        "endpoint": "/internal/menu/example-form"[m
+       }[m
+     ][m
+   },[m
+[31m-  "forms": {[m
+[31m-    "exampleForm": "/internal/form/example-submit"[m
+[31m-  },[m
+   "triggers": {[m
+     "onAppInstall": "/internal/triggers/on-app-install"[m
+   },[m
+[36m@@ -48,4 +38,4 @@[m
+   "dev": {[m
+     "subreddit": "afterlight_recall_dev"[m
+   }[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[1mdiff --git a/src/server/index.ts b/src/server/index.ts[m
+[1mindex a2c55ec..bcc3060 100644[m
+[1m--- a/src/server/index.ts[m
+[1m+++ b/src/server/index.ts[m
+[36m@@ -2,7 +2,6 @@[m [mimport { Hono } from 'hono';[m
+ import { serve } from '@hono/node-server';[m
+ import { createServer, getServerPort } from '@devvit/web/server';[m
+ import { api } from './routes/api';[m
+[31m-import { forms } from './routes/forms';[m
+ import { menu } from './routes/menu';[m
+ import { triggers } from './routes/triggers';[m
+ [m
+[36m@@ -10,7 +9,6 @@[m [mconst app = new Hono();[m
+ const internal = new Hono();[m
+ [m
+ internal.route('/menu', menu);[m
+[31m-internal.route('/form', forms);[m
+ internal.route('/triggers', triggers);[m
+ [m
+ app.route('/api', api);[m
