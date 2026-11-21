@@ -98,7 +98,7 @@ Start a Reddit playtest:
 npm run dev
 ```
 
-Reddit playtesting requires an authorized developer account. The current developer account restriction is under appeal.
+Reddit playtesting requires an authorized developer account. The developer account is authenticated and the app has been successfully playtested in the test subreddit.
 
 ## **Hackathon**
 
@@ -110,10 +110,18 @@ The goal is to make memory training a small, satisfying daily ritual through sim
 
 ## **Status**
 
-The core game, shared scoring logic, daily result persistence, streak tracking, and retry-saving flow are implemented.
+The core game, shared scoring logic, daily result persistence, streak tracking, practice mode, and retry-saving flow are implemented.
 
+The app is uploaded to Reddit and installed in `r/afterlight_recall_dev`.
 
+Verified gameplay features:
+- Daily challenge and daily completion persistence.
+- Random practice mode.
+- Pattern scoring and result screens.
+- Daily streak tracking.
+- Result sharing.
+- Automated type checks, linting, build, and unit tests.
 
-The core game builds and passes its automated checks. Reddit installation, public playtesting, and final submission setup remain outstanding while developer access is under review.
+Final hackathon submission preparation and public judging access remain to be completed.
 
 **AFTERLIGHT — Remember what you see. Rebuild what disappears.**
